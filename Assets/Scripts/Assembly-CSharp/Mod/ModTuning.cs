@@ -8,6 +8,9 @@ using Zombie3D;
 /// </summary>
 public static class ModTuning
 {
+	/// <summary>Shown in the corner of the menus, to tell which build is installed.</summary>
+	public const string BuildLabel = "MOD BUILD 10";
+
 	// ---- Prices ----------------------------------------------------------
 
 	/// <summary>Weapon upgrades and avatar HP upgrades cost this many times less.</summary>

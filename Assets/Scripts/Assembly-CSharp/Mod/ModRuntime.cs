@@ -252,8 +252,16 @@ public class ModRuntime : MonoBehaviour
 
 	private void OnGUI()
 	{
-		if (Event.current.type != EventType.Repaint || !InGame())
+		if (Event.current.type != EventType.Repaint)
 		{
+			return;
+		}
+		if (!InGame())
+		{
+			// In the menus: a small build number in the bottom-left corner.
+			EnsureStyles();
+			float sh = Screen.height;
+			DrawOutlined(new Rect(sh * 0.012f, sh * 0.955f, sh, sh * 0.045f), ModTuning.BuildLabel, smallStyle, new Color(1f, 1f, 1f, 0.75f));
 			return;
 		}
 		GameState state = GameApp.GetInstance().GetGameState();

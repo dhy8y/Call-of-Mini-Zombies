@@ -255,8 +255,6 @@ public class GameConfig
 						break;
 					}
 				}
-				// Every character, whether bought with cash or gems.
-				avatarConfig.price = ModTuning.DiscountShopPrice(avatarConfig.price);
 				avatarConfTable.Add(avatarConfig.name, avatarConfig);
 				break;
 			}
@@ -285,7 +283,10 @@ public class GameConfig
 				avatarConfig.unlockDay = int.Parse(reader.Value);
 				break;
 			case "price":
-				avatarConfig.price = int.Parse(reader.Value);
+				// Mod: every character costs less, whether bought with cash or gems.
+				// (The character is stored as soon as its name is read, so the
+				// discount has to be applied here, where the price is read.)
+				avatarConfig.price = ModTuning.DiscountShopPrice(int.Parse(reader.Value));
 				break;
 			case "hpWeight":
 				avatarConfig.hpBuyWeight = float.Parse(reader.Value);
