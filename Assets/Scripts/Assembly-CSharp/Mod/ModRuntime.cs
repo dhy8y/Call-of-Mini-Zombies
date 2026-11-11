@@ -94,10 +94,76 @@ public class ModRuntime : MonoBehaviour
 	private void Update()
 	{
 		ModFX.Tick(Time.deltaTime);
+		UpdateInGameExtras();
 		// Android's back button and back gesture arrive as the Escape key.
 		if (Input.GetKeyDown(KeyCode.Escape))
 		{
 			HandleBack();
+		}
+	}
+
+	private float nextItemRefresh;
+
+	private void UpdateInGameExtras()
+	{
+		if (!InGame())
+		{
+			ModSprint.Stop();
+			return;
+		}
+		try
+		{
+			if (GameUIScriptNew.IsPaused)
+			{
+				ModSprint.UpdatePaused();
+			}
+			else
+			{
+				ModSprint.UpdateInGame(GameUIScriptNew.CanPlayerMove);
+			}
+			if (Time.unscaledTime >= nextItemRefresh)
+			{
+				nextItemRefresh = Time.unscaledTime + 0.25f;
+				RefreshPowerupButtons();
+			}
+		}
+		catch (System.Exception ex)
+		{
+			Debug.LogWarning("[Mod] in-game extras failed: " + ex.Message);
+		}
+	}
+
+	/// <summary>
+	/// The two powerup buttons only checked what the player could afford when a
+	/// powerup was used, so gems earned during a game never lit them up. An
+	/// empty slot is now bright as soon as its price can be paid, dim otherwise.
+	/// </summary>
+	private void RefreshPowerupButtons()
+	{
+		GameUIItemInfo info = cachedUi.itemInfo;
+		GameState state = GameApp.GetInstance().GetGameState();
+		if (info == null || state == null || info.itemLogo == null || !info.gameObject.activeInHierarchy)
+		{
+			return;
+		}
+		for (int i = 0; i < info.itemLogo.Length && i < info.isBuyItem.Length; i++)
+		{
+			if (!info.isBuyItem[i] || info.itemLogo[i] == null)
+			{
+				continue;
+			}
+			string frame = info.itemLogo[i].frameName_Accessor;
+			if (string.IsNullOrEmpty(frame) || !frame.StartsWith("item_"))
+			{
+				continue;
+			}
+			ItemConfig conf = GameApp.GetInstance().GetGameConfig().GetItemConfig(Item.GetItemTypeByName(frame.Substring("item_".Length)));
+			if (conf == null)
+			{
+				continue;
+			}
+			bool affordable = (!conf.isCrystalBuy) ? (state.GetCash() >= conf.price) : (state.GetCrystal() >= conf.price);
+			info.itemLogo[i].color_Accessor = new Color(1f, 1f, 1f, (!affordable) ? 0.5f : 1f);
 		}
 	}
 
@@ -216,13 +282,21 @@ public class ModRuntime : MonoBehaviour
 			DrawOutlined(new Rect(x + width + h * 0.02f, y - rise, h * 0.8f, lineHeight), "+" + ModFormat.Short(popupPoints), labelStyle, new Color(0.55f, 1f, 0.45f, alpha));
 		}
 
+		// Gems, right under the points, always up to date.
+		y += lineHeight;
+		string gemsText = "GEMS  " + ModFormat.Short(state.GetCrystal());
+		DrawOutlined(new Rect(x, y, h * 1.2f, lineHeight), gemsText, labelStyle, new Color(0.4f, 0.9f, 1f, 1f));
+
+		DrawSprintButton();
+
 		int wave = ModTuning.CurrentSurvivalWave();
 		float gemLeft = gemPopupUntil - Time.unscaledTime;
 		if (gemLeft > 0f && gemPopup > 0)
 		{
 			float gemAlpha = Mathf.Clamp01(gemLeft / (GemPopupTime * 0.3f));
-			string gemText = "+" + ModFormat.Short(gemPopup) + ((gemPopup != 1) ? " GEMS" : " GEM");
-			DrawOutlined(new Rect(x, y + lineHeight * ((wave <= 0) ? 1f : 2f), h * 1.2f, lineHeight), gemText, labelStyle, new Color(0.4f, 0.9f, 1f, gemAlpha));
+			string gemText = "+" + ModFormat.Short(gemPopup);
+			float gemsWidth = labelStyle.CalcSize(new GUIContent(gemsText)).x;
+			DrawOutlined(new Rect(x + gemsWidth + h * 0.02f, y, h * 0.8f, lineHeight), gemText, labelStyle, new Color(0.7f, 1f, 1f, gemAlpha));
 		}
 		if (wave > 0)
 		{
@@ -230,6 +304,67 @@ public class ModRuntime : MonoBehaviour
 			string bonus = "WAVE " + wave + "   GAINS x" + ModFormat.Multiplier(ModTuning.SurvivalMultiplier());
 			DrawOutlined(new Rect(x, y + lineHeight, h * 1.4f, lineHeight), bonus, labelStyle, new Color(1f, 0.55f, 0.15f, 1f));
 		}
+	}
+
+	private static Texture2D discTexture;
+
+	/// <summary>Filled circle with a soft edge, used for the sprint button.</summary>
+	private static Texture2D GetDisc()
+	{
+		if (discTexture != null)
+		{
+			return discTexture;
+		}
+		const int size = 128;
+		discTexture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+		discTexture.wrapMode = TextureWrapMode.Clamp;
+		Color32[] pixels = new Color32[size * size];
+		float half = (float)(size - 1) * 0.5f;
+		for (int py = 0; py < size; py++)
+		{
+			for (int px = 0; px < size; px++)
+			{
+				float dx = ((float)px - half) / half;
+				float dy = ((float)py - half) / half;
+				float d = Mathf.Sqrt(dx * dx + dy * dy);
+				// Bright ring on the outside, lighter fill inside.
+				float edge = Mathf.Clamp01((1f - d) * 24f);
+				float ring = Mathf.Clamp01((d - 0.84f) * 16f);
+				float alpha = edge * Mathf.Lerp(0.45f, 1f, ring);
+				pixels[py * size + px] = new Color32(byte.MaxValue, byte.MaxValue, byte.MaxValue, (byte)Mathf.RoundToInt(alpha * 255f));
+			}
+		}
+		discTexture.SetPixels32(pixels);
+		discTexture.Apply(false, true);
+		return discTexture;
+	}
+
+	private void DrawSprintButton()
+	{
+		if (GameUIScriptNew.IsPaused)
+		{
+			Rect option = ModSprint.GetPauseOptionRect();
+			Color before = GUI.color;
+			GUI.color = new Color(0f, 0f, 0f, 0.7f);
+			GUI.DrawTexture(option, Texture2D.whiteTexture);
+			GUI.color = before;
+			GUIStyle centred = new GUIStyle(labelStyle);
+			centred.alignment = TextAnchor.MiddleCenter;
+			string mode = (!ModSprint.HoldMode) ? "SPRINT :  TOGGLE" : "SPRINT :  HOLD";
+			DrawOutlined(option, mode + "    (TAP TO CHANGE)", centred, new Color(1f, 0.75f, 0.2f, 1f));
+			return;
+		}
+		Vector2 centre;
+		float radius;
+		ModSprint.GetButton(out centre, out radius);
+		Rect rect = new Rect(centre.x - radius, centre.y - radius, radius * 2f, radius * 2f);
+		Color previous = GUI.color;
+		GUI.color = (!ModSprint.Active) ? new Color(0.75f, 0.6f, 0.2f, 0.55f) : new Color(1f, 0.55f, 0.1f, 0.95f);
+		GUI.DrawTexture(rect, GetDisc());
+		GUI.color = previous;
+		GUIStyle small = new GUIStyle(smallStyle);
+		small.alignment = TextAnchor.MiddleCenter;
+		DrawOutlined(rect, "SPRINT", small, (!ModSprint.Active) ? new Color(1f, 0.9f, 0.6f, 0.9f) : Color.white);
 	}
 
 	/// <summary>Text with a dark edge so it stays readable over any background.</summary>

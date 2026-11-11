@@ -384,7 +384,7 @@ namespace Zombie3D
 		{
 			if (charController != null)
 			{
-				Vector3 motion = moveDirection * (MoveSpeed * m_delta);
+				Vector3 motion = moveDirection * (MoveSpeed * ModSprint.SpeedMultiplier * m_delta);
 				charController.Move(motion);
 			}
 		}

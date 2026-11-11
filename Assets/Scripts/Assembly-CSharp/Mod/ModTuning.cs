@@ -80,6 +80,9 @@ public static class ModTuning
 	/// <summary>Largest upper-body lean in degrees, either way.</summary>
 	public const float AimBodyLeanMax = 55f;
 
+	/// <summary>Move speed while sprinting, compared with normal speed.</summary>
+	public const float SprintSpeedMultiplier = 1.6f;
+
 	// ---- Campaign days ---------------------------------------------------
 
 	public const int CampaignFirstDayZombies = 10;

@@ -376,6 +376,7 @@ public class MainMapTUI : MonoBehaviour, TUIHandler
 		{
 			audioPlayer.PlayAudio("Button");
 			GameApp.GetInstance().GetGameState().gameMode = GameMode.Coop;
+			ModHooks.EnsureNickname();
 			if (GameApp.GetInstance().GetGameState().nick_name == string.Empty || GameApp.GetInstance().GetGameState().nick_name == "None")
 			{
 				SceneName.FadeOutLevel("NickNameTUI");
@@ -390,6 +391,7 @@ public class MainMapTUI : MonoBehaviour, TUIHandler
 		{
 			audioPlayer.PlayAudio("Button");
 			GameApp.GetInstance().GetGameState().gameMode = GameMode.Vs;
+			ModHooks.EnsureNickname();
 			if (GameApp.GetInstance().GetGameState().nick_name == string.Empty || GameApp.GetInstance().GetGameState().nick_name == "None")
 			{
 				SceneName.FadeOutLevel("NickNameTUI");

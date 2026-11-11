@@ -173,6 +173,27 @@ public static class ModHooks
 		}
 	}
 
+	/// <summary>
+	/// Boss raid and versus asked for a nickname before letting the player in.
+	/// A default one is given instead, so those modes open straight away.
+	/// </summary>
+	public static void EnsureNickname()
+	{
+		try
+		{
+			GameState state = GameApp.GetInstance().GetGameState();
+			if (state != null && (string.IsNullOrEmpty(state.nick_name) || state.nick_name == "None"))
+			{
+				state.nick_name = "Player" + Random.Range(1000, 10000);
+				GameApp.GetInstance().Save();
+			}
+		}
+		catch (System.Exception ex)
+		{
+			Debug.LogWarning("[Mod] default nickname failed: " + ex.Message);
+		}
+	}
+
 	/// <summary>Survival: pays the gems for the wave that was just cleared.</summary>
 	public static void OnSurvivalWaveCleared(int wave)
 	{
