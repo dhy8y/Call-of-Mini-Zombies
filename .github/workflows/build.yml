@@ -26,6 +26,10 @@ jobs:
           - targetPlatform: StandaloneWindows64
             label: Windows EXE
             artifact: CallOfMiniZombies-Windows
+          # Linux build, used to run and check the game automatically.
+          - targetPlatform: StandaloneLinux64
+            label: Linux test build
+            artifact: CallOfMiniZombies-Linux
     steps:
       - name: Free disk space
         run: |
