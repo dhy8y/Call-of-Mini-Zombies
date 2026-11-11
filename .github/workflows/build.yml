@@ -1,14 +1,31 @@
-name: Build APK
+name: Build game
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'claude/**']
   workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    name: Build Android APK
+    name: Build ${{ matrix.label }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Android APK, signed with Unity's debug key (fine for sideloading).
+          - targetPlatform: Android
+            label: Android APK
+            artifact: CallOfMiniZombies-APK
+          # Windows .exe. Built with the Mono backend so it can run on a
+          # Linux runner (IL2CPP for Windows needs a Windows runner).
+          - targetPlatform: StandaloneWindows64
+            label: Windows EXE
+            artifact: CallOfMiniZombies-Windows
     steps:
       - name: Free disk space
         run: |
@@ -22,9 +39,9 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: Library
-          key: Library-Android-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-Android-
+            Library-${{ matrix.targetPlatform }}-
 
       - uses: game-ci/unity-builder@v4
         env:
@@ -32,7 +49,7 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: Android
+          targetPlatform: ${{ matrix.targetPlatform }}
           androidExportType: androidPackage
           androidTargetSdkVersion: AndroidApiLevelAuto
           buildName: CallOfMiniZombies
@@ -40,5 +57,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: CallOfMiniZombies-APK
-          path: build/Android
+          name: ${{ matrix.artifact }}
+          path: build/${{ matrix.targetPlatform }}
