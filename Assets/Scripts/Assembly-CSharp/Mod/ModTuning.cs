@@ -13,6 +13,9 @@ public static class ModTuning
 	/// <summary>Weapon upgrades and avatar HP upgrades cost this many times less.</summary>
 	public const float UpgradePriceDivisor = 20f;
 
+	/// <summary>Weapons and characters bought with cash cost this many times less. Crystal prices are untouched.</summary>
+	public const float ShopPriceDivisor = 20f;
+
 	// ---- Points per kill -------------------------------------------------
 
 	/// <summary>An elite version of a zombie is worth this many extra points (capped at MaxZombiePoints).</summary>
@@ -52,6 +55,15 @@ public static class ModTuning
 			return price;
 		}
 		return Mathf.Max(1, Mathf.RoundToInt((float)price / UpgradePriceDivisor));
+	}
+
+	public static int DiscountShopPrice(int price)
+	{
+		if (price <= 0)
+		{
+			return price;
+		}
+		return Mathf.Max(1, Mathf.RoundToInt((float)price / ShopPriceDivisor));
 	}
 
 	/// <summary>1 for the weakest zombie, up to 5 for the toughest.</summary>

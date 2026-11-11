@@ -135,6 +135,10 @@ public class GameConfig
 				{
 					weaponConfig = new WeaponConfig();
 					LoadWeaponConf(xmlReader, weaponConfig);
+					if (!weaponConfig.isCrystalBuy)
+					{
+						weaponConfig.price = ModTuning.DiscountShopPrice(weaponConfig.price);
+					}
 					weaponConfTable.Add(weaponConfig);
 				}
 				else if (xmlReader.Name == "AttributesUpgrade")
@@ -249,6 +253,10 @@ public class GameConfig
 						}
 						break;
 					}
+				}
+				if (!avatarConfig.isCrystalBuy)
+				{
+					avatarConfig.price = ModTuning.DiscountShopPrice(avatarConfig.price);
 				}
 				avatarConfTable.Add(avatarConfig.name, avatarConfig);
 				break;
