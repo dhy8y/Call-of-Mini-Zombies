@@ -436,6 +436,7 @@ namespace Zombie3D
 			birth_point_index = 0u;
 			points = GameObject.FindGameObjectsWithTag("WayPoint");
 			playerObject = AvatarFactory.GetInstance().CreateAvatar(avatarType);
+			ModAimPitch.Attach(playerObject);
 			if (SceneName.GetNetMapIndex(Application.loadedLevelName) > 9)
 			{
 				playerObject.GetComponent<CharacterController>().slopeLimit = 60f;

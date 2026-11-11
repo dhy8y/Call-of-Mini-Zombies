@@ -104,6 +104,8 @@ namespace Zombie3D
 			component.targetPos = new Ray(fire_ori.transform.position, vector2).GetPoint(100f);
 			TPSSimpleCameraScript tPSSimpleCameraScript = (TPSSimpleCameraScript)gameCamera;
 			float num2 = (tPSSimpleCameraScript.angelV - tPSSimpleCameraScript.minAngelV) / (tPSSimpleCameraScript.maxAngelV - tPSSimpleCameraScript.minAngelV);
+			// The camera can now pitch outside the range this was written for.
+			num2 = Mathf.Clamp01(num2);
 			component.initAngel = 10f + num2 * 30f;
 			component.targetPos.y = 10000f;
 			component.angelDelta = 80f;

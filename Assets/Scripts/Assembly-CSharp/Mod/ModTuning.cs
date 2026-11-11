@@ -66,6 +66,20 @@ public static class ModTuning
 		return 1;
 	}
 
+	// ---- Camera and aiming -----------------------------------------------
+
+	/// <summary>Lowest camera pitch in degrees (negative looks down).</summary>
+	public const float CameraMinPitch = -70f;
+
+	/// <summary>Highest camera pitch in degrees (positive looks up).</summary>
+	public const float CameraMaxPitch = 70f;
+
+	/// <summary>How much of the camera pitch the character's upper body follows.</summary>
+	public const float AimBodyLeanFactor = 0.8f;
+
+	/// <summary>Largest upper-body lean in degrees, either way.</summary>
+	public const float AimBodyLeanMax = 55f;
+
 	// ---- Campaign days ---------------------------------------------------
 
 	public const int CampaignFirstDayZombies = 10;

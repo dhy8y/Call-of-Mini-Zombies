@@ -114,7 +114,8 @@ public class TPSSimpleCameraScript : BaseCameraScript
 				angelH += x * 0.03f * cameraSwingSpeed;
 				angelV += y * 0.03f * cameraSwingSpeed;
 			}
-			angelV = Mathf.Clamp(angelV, minAngelV, maxAngelV);
+			// Mod: the scenes only allowed looking from 25 degrees down to level.
+			angelV = Mathf.Clamp(angelV, ModTuning.CameraMinPitch, ModTuning.CameraMaxPitch);
 			if (player.GetWeapon().Deflection.x == 0f && player.GetWeapon().Deflection.y == 0f)
 			{
 				drx = Mathf.Lerp(drx, player.GetWeapon().Deflection.x, deltaTime * 5f);
