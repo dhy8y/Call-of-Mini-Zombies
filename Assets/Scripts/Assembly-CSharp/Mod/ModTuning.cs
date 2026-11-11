@@ -135,7 +135,7 @@ public static class ModTuning
 
 	// ---- Survival mode ---------------------------------------------------
 
-	/// <summary>Everything earned in survival is multiplied by this, once more for every wave cleared.</summary>
+	/// <summary>From wave 8 on, every wave multiplies survival earnings by this once more.</summary>
 	public const float SurvivalWaveMultiplier = 1.25f;
 
 	/// <summary>Keeps one reward far away from the int limit at very high waves.</summary>
@@ -225,15 +225,30 @@ public static class ModTuning
 		return Mathf.Max(1, scene.ArenaTrigger_Instance.CurrentWave);
 	}
 
-	/// <summary>x1 on wave 1, x1.25 on wave 2, x1.5625 on wave 3... and x1 outside survival.</summary>
+	/// <summary>Survival multiplier for waves 1 to 7, set by hand.</summary>
+	private static readonly double[] SurvivalEarlyMultipliers = new double[7] { 1.0, 2.0, 4.0, 10.0, 15.0, 20.0, 25.0 };
+
+	/// <summary>
+	/// x1 on wave 1, then x2, x4, x10, x15, x20, x25 on wave 7, then x1.25 more
+	/// for every wave after that. x1 outside survival.
+	/// </summary>
 	public static double SurvivalMultiplier()
 	{
-		int wave = CurrentSurvivalWave();
+		return SurvivalMultiplierForWave(CurrentSurvivalWave());
+	}
+
+	public static double SurvivalMultiplierForWave(int wave)
+	{
 		if (wave <= 1)
 		{
 			return 1.0;
 		}
-		return Math.Pow(SurvivalWaveMultiplier, wave - 1);
+		int last = SurvivalEarlyMultipliers.Length;
+		if (wave <= last)
+		{
+			return SurvivalEarlyMultipliers[wave - 1];
+		}
+		return SurvivalEarlyMultipliers[last - 1] * Math.Pow(SurvivalWaveMultiplier, wave - last);
 	}
 
 	public static int ApplySurvivalMultiplier(int basePoints)
