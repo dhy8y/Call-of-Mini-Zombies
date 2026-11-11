@@ -90,8 +90,7 @@ public class MainMapTUI : MonoBehaviour, TUIHandler
 		m_tui.transform.Find("TUIControl").Find("Fade").GetComponent<TUIFade>()
 			.FadeIn();
 		label_day.text_Accessor = "DAY " + GameApp.GetInstance().GetGameState().LevelNum;
-		label_money.text_Accessor = "$" + GameApp.GetInstance().GetGameState().GetCash()
-			.ToString("N0");
+		label_money.text_Accessor = "$" + ModFormat.Short(GameApp.GetInstance().GetGameState().GetCash());
 		label_crystal.text_Accessor = GameApp.GetInstance().GetGameState().GetCrystal()
 			.ToString("N0");
 		if (!GameApp.GetInstance().GetGameState().show_zombies2_link)

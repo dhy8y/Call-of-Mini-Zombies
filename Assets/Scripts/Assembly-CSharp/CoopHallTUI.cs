@@ -82,8 +82,7 @@ public class CoopHallTUI : MonoBehaviour, TUIHandler
 		audioPlayer.AddAudio(base.transform, "Button", true);
 		audioPlayer.AddAudio(base.transform, "Back", true);
 		IndicatorPanel.GetComponent<IndicatorTUI>().automaticClose = OnIndicatorClose;
-		label_money.text_Accessor = "$" + GameApp.GetInstance().GetGameState().GetCash()
-			.ToString("N0");
+		label_money.text_Accessor = "$" + ModFormat.Short(GameApp.GetInstance().GetGameState().GetCash());
 		label_crystal.text_Accessor = GameApp.GetInstance().GetGameState().GetCrystal()
 			.ToString("N0");
 		GameObject gameObject = AvatarFactory.GetInstance().CreateAvatar(GameApp.GetInstance().GetGameState().Avatar);

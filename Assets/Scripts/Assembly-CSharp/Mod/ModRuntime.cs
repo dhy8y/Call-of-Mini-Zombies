@@ -134,7 +134,7 @@ public class ModRuntime : MonoBehaviour
 		float lineHeight = (float)labelStyle.fontSize * 1.35f;
 
 		int points = state.loot_cash;
-		string text = "POINTS  " + points.ToString("N0");
+		string text = "POINTS  " + ModFormat.Short(points);
 		DrawOutlined(new Rect(x, y, h * 1.2f, lineHeight), text, labelStyle, new Color(1f, 0.86f, 0.25f, 1f));
 
 		float popupLeft = popupUntil - Time.unscaledTime;
@@ -143,14 +143,15 @@ public class ModRuntime : MonoBehaviour
 			float width = labelStyle.CalcSize(new GUIContent(text)).x;
 			float alpha = Mathf.Clamp01(popupLeft / (PopupTime * 0.5f));
 			float rise = (1f - popupLeft / PopupTime) * lineHeight * 0.35f;
-			DrawOutlined(new Rect(x + width + h * 0.02f, y - rise, h * 0.8f, lineHeight), "+" + popupPoints.ToString("N0"), labelStyle, new Color(0.55f, 1f, 0.45f, alpha));
+			DrawOutlined(new Rect(x + width + h * 0.02f, y - rise, h * 0.8f, lineHeight), "+" + ModFormat.Short(popupPoints), labelStyle, new Color(0.55f, 1f, 0.45f, alpha));
 		}
 
 		int wave = ModTuning.CurrentSurvivalWave();
 		if (wave > 0)
 		{
-			string bonus = "BONUS x" + ModTuning.SurvivalMultiplier().ToString((wave <= 12) ? "0.00" : "N0");
-			DrawOutlined(new Rect(x, y + lineHeight, h * 1.2f, lineHeight), bonus, smallStyle, new Color(1f, 1f, 1f, 0.9f));
+			// Same multiplier the kills and pickups are paid with, so it moves as soon as a new wave starts.
+			string bonus = "WAVE " + wave + "   GAINS x" + ModFormat.Multiplier(ModTuning.SurvivalMultiplier());
+			DrawOutlined(new Rect(x, y + lineHeight, h * 1.4f, lineHeight), bonus, labelStyle, new Color(1f, 0.55f, 0.15f, 1f));
 		}
 	}
 

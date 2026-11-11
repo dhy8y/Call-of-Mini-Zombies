@@ -87,8 +87,7 @@ public class VSHallTUI : MonoBehaviour, TUIHandler
 		audioPlayer.AddAudio(base.transform, "Button", true);
 		audioPlayer.AddAudio(base.transform, "Back", true);
 		IndicatorPanel.GetComponent<IndicatorTUI>().automaticClose = OnIndicatorClose;
-		label_money.text_Accessor = "$" + GameApp.GetInstance().GetGameState().GetCash()
-			.ToString("N0");
+		label_money.text_Accessor = "$" + ModFormat.Short(GameApp.GetInstance().GetGameState().GetCash());
 		label_crystal.text_Accessor = GameApp.GetInstance().GetGameState().GetCrystal()
 			.ToString("N0");
 		if (GameApp.GetInstance().GetGameState().last_scene == "MainMapTUI" || GameApp.GetInstance().GetGameState().last_scene == "NickNameTUI")

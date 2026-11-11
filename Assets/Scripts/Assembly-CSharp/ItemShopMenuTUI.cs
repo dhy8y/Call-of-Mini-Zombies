@@ -342,8 +342,7 @@ public class ItemShopMenuTUI : MonoBehaviour, TUIHandler
 
 	private void RefreshCashLebel()
 	{
-		label_money.text_Accessor = "$" + GameApp.GetInstance().GetGameState().GetCash()
-			.ToString("N0");
+		label_money.text_Accessor = "$" + ModFormat.Short(GameApp.GetInstance().GetGameState().GetCash());
 		label_crystal.text_Accessor = GameApp.GetInstance().GetGameState().GetCrystal()
 			.ToString("N0");
 	}

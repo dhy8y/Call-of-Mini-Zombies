@@ -69,8 +69,7 @@ public class OptionTUI : MonoBehaviour, TUIHandler
 		sound_off_button.SetSelected(!GameApp.GetInstance().GetGameState().SoundOn);
 		sound_on_button.SetSelected(GameApp.GetInstance().GetGameState().SoundOn);
 		label_day.text_Accessor = "DAY " + GameApp.GetInstance().GetGameState().LevelNum;
-		label_money.text_Accessor = "$" + GameApp.GetInstance().GetGameState().GetCash()
-			.ToString("N0");
+		label_money.text_Accessor = "$" + ModFormat.Short(GameApp.GetInstance().GetGameState().GetCash());
 		label_crystal.text_Accessor = GameApp.GetInstance().GetGameState().GetCrystal()
 			.ToString("N0");
 		Transform folderTrans = base.transform.Find("Audio");

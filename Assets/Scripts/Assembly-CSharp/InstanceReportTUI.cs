@@ -46,7 +46,7 @@ public class InstanceReportTUI : MonoBehaviour, TUIHandler
 			MaxWave.text_Accessor = gameObject.GetComponent<InstanceReportData>().maxWave.ToString();
 			TimeSpan timeSpan = new TimeSpan(0, 0, (int)gameObject.GetComponent<InstanceReportData>().survivalTime);
 			SurvivialTime.text_Accessor = timeSpan.ToString();
-			RewardCash.text_Accessor = "$" + gameObject.GetComponent<InstanceReportData>().rewardCash;
+			RewardCash.text_Accessor = "$" + ModFormat.Short(gameObject.GetComponent<InstanceReportData>().rewardCash);
 		}
 		OpenClikPlugin.Hide();
 	}
