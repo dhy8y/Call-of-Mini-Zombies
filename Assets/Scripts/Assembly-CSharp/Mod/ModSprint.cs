@@ -69,7 +69,7 @@ public static class ModSprint
 	public static Rect GetPauseOptionRect()
 	{
 		float h = Screen.height;
-		float width = h * 0.72f;
+		float width = h * 0.95f;
 		float height = h * 0.085f;
 		return new Rect(((float)Screen.width - width) * 0.5f, h * 0.875f, width, height);
 	}

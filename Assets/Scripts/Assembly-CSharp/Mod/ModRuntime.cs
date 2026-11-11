@@ -301,8 +301,9 @@ public class ModRuntime : MonoBehaviour
 		if (wave > 0)
 		{
 			// Same multiplier the kills and pickups are paid with, so it moves as soon as a new wave starts.
-			string bonus = "WAVE " + wave + "   GAINS x" + ModFormat.Multiplier(ModTuning.SurvivalMultiplier());
-			DrawOutlined(new Rect(x, y + lineHeight, h * 1.4f, lineHeight), bonus, labelStyle, new Color(1f, 0.55f, 0.15f, 1f));
+			// The game prints its own SCORE and WAVE lines just below, so this goes under them.
+			string bonus = "GAINS x" + ModFormat.Multiplier(ModTuning.SurvivalMultiplier());
+			DrawOutlined(new Rect(x, h * 0.385f, h * 1.4f, lineHeight), bonus, labelStyle, new Color(1f, 0.55f, 0.15f, 1f));
 		}
 	}
 
@@ -348,10 +349,10 @@ public class ModRuntime : MonoBehaviour
 			GUI.color = new Color(0f, 0f, 0f, 0.7f);
 			GUI.DrawTexture(option, Texture2D.whiteTexture);
 			GUI.color = before;
-			GUIStyle centred = new GUIStyle(labelStyle);
+			GUIStyle centred = new GUIStyle(smallStyle);
 			centred.alignment = TextAnchor.MiddleCenter;
-			string mode = (!ModSprint.HoldMode) ? "SPRINT :  TOGGLE" : "SPRINT :  HOLD";
-			DrawOutlined(option, mode + "    (TAP TO CHANGE)", centred, new Color(1f, 0.75f, 0.2f, 1f));
+			string mode = (!ModSprint.HoldMode) ? "SPRINT: TOGGLE" : "SPRINT: HOLD";
+			DrawOutlined(option, mode + "   -   TAP TO CHANGE", centred, new Color(1f, 0.75f, 0.2f, 1f));
 			return;
 		}
 		Vector2 centre;
