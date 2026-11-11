@@ -1,11 +1,8 @@
 // Mod: thin outline around a character's silhouette, plus a glow when it is hit.
 //
-// The outline follows the outer shape only (no lines between an arm and the
-// body behind it). It works in four passes drawn on a copy of the mesh:
-//   1. MARK    - tags every pixel covered by the character in the stencil buffer
-//   2. OUTLINE - draws the mesh pushed outwards, only where the tag is missing
-//   3. CLEAR   - removes the tag so the next character gets its own outline
-//   4. GLOW    - adds light on the body itself while _Flash is above zero
+// The outline is drawn on a copy of the mesh in two passes:
+//   1. OUTLINE - the mesh pushed outwards, back faces only, so just the rim shows
+//   2. GLOW    - adds light on the body itself while _Flash is above zero
 Shader "ModFX/ModOutline" {
 Properties {
  _OutlineColor ("Outline Color", Color) = (0,0,0,1)
@@ -72,58 +69,17 @@ SubShader {
  ENDCG
 
  Pass {
-  Name "MARK"
-  Cull Off
-  ZTest Always
-  ZWrite Off
-  ColorMask 0
-  Stencil {
-   Ref 128
-   ReadMask 128
-   WriteMask 128
-   Comp Always
-   Pass Replace
-  }
-  CGPROGRAM
-  #pragma vertex vertBody
-  #pragma fragment fragNothing
-  ENDCG
- }
-
- Pass {
   Name "OUTLINE"
-  Cull Off
+  // Only the back faces of the pushed-out copy are drawn. They sit behind the
+  // character, so the character hides all of it except the rim that sticks
+  // out around the silhouette. Needs no stencil buffer, which many phones
+  // do not provide.
+  Cull Front
   ZTest LEqual
   ZWrite On
-  Stencil {
-   Ref 128
-   ReadMask 128
-   WriteMask 128
-   Comp NotEqual
-   Pass Keep
-  }
   CGPROGRAM
   #pragma vertex vertHull
   #pragma fragment fragOutline
-  ENDCG
- }
-
- Pass {
-  Name "CLEAR"
-  Cull Off
-  ZTest Always
-  ZWrite Off
-  ColorMask 0
-  Stencil {
-   Ref 0
-   ReadMask 128
-   WriteMask 128
-   Comp Always
-   Pass Replace
-  }
-  CGPROGRAM
-  #pragma vertex vertHull
-  #pragma fragment fragNothing
   ENDCG
  }
 
