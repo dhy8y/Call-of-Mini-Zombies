@@ -139,6 +139,7 @@ public class GameConfig
 					{
 						weaponConfig.price = ModTuning.DiscountShopPrice(weaponConfig.price);
 					}
+					weaponConfig.bulletPrice = ModTuning.DiscountShopPrice(weaponConfig.bulletPrice);
 					weaponConfTable.Add(weaponConfig);
 				}
 				else if (xmlReader.Name == "AttributesUpgrade")
@@ -652,6 +653,12 @@ public class GameConfig
 			{
 				itemsConfTable[k].dropRate /= num4;
 			}
+		}
+		// Mod: drop rates above are derived from the original prices, so the
+		// discount is applied only once they are computed.
+		for (int m = 0; m < itemsConfTable.Count; m++)
+		{
+			itemsConfTable[m].price = ModTuning.DiscountShopPrice(itemsConfTable[m].price);
 		}
 	}
 

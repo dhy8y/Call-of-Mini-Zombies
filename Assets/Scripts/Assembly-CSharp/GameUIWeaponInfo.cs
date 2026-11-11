@@ -30,7 +30,7 @@ public class GameUIWeaponInfo : MonoBehaviour
 		if (player.GetWeapon().GetWeaponType() != WeaponType.Saw && player.GetWeapon().GetWeaponType() != WeaponType.Sword)
 		{
 			bulletLogo.GetComponent<TUIMeshSprite>().frameName_Accessor = player.GetWeapon().WeaponBulletName;
-			if (player.GetWeapon().BulletCount == 0 && gameState.GetCash() >= player.GetWeapon().WConf.bulletPrice)
+			if (player.GetWeapon().BulletCount == 0)
 			{
 				buyAmmo.SetActive(true);
 				bulletCount.SetActive(false);
@@ -82,7 +82,7 @@ public class GameUIWeaponInfo : MonoBehaviour
 		{
 			if (weapon.GetWeaponType() != WeaponType.SuicideGun)
 			{
-				if (weapon.BulletCount == 0 && gameState.GetCash() >= weapon.WConf.bulletPrice)
+				if (weapon.BulletCount == 0)
 				{
 					buyAmmo.SetActive(true);
 					bulletCount.SetActive(false);

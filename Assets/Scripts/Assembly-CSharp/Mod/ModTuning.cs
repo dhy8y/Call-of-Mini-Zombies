@@ -13,7 +13,10 @@ public static class ModTuning
 	/// <summary>Weapon upgrades and avatar HP upgrades cost this many times less.</summary>
 	public const float UpgradePriceDivisor = 20f;
 
-	/// <summary>Weapons and characters bought with cash cost this many times less. Crystal prices are untouched.</summary>
+	/// <summary>
+	/// Shop prices cost this many times less: weapons and characters bought with
+	/// cash, ammo refills, and every powerup (cash or gems, never below 1).
+	/// </summary>
 	public const float ShopPriceDivisor = 20f;
 
 	// ---- Points per kill -------------------------------------------------
@@ -36,6 +39,40 @@ public static class ModTuning
 	public const int GoldPickupPoints = 10;
 
 	public const int BigGoldPickupPoints = 50;
+
+	// ---- Gems (crystals) -------------------------------------------------
+
+	/// <summary>No single day or wave pays more gems than this.</summary>
+	public const int MaxGemsPerReward = 100;
+
+	/// <summary>Campaign: clearing day 1 pays 1 gem, day 2 pays 2, day 3 pays 3...</summary>
+	public static int CampaignGems(int dayCleared)
+	{
+		return Mathf.Clamp(dayCleared, 1, MaxGemsPerReward);
+	}
+
+	/// <summary>Survival: gems paid for each wave cleared, by wave number.</summary>
+	public static int SurvivalGems(int waveCleared)
+	{
+		if (waveCleared >= 50) return 100;
+		if (waveCleared >= 45) return 50;
+		if (waveCleared >= 40) return 30;
+		if (waveCleared >= 35) return 25;
+		if (waveCleared >= 30) return 15;
+		if (waveCleared >= 25) return 10;
+		if (waveCleared >= 20) return 5;
+		if (waveCleared >= 15) return 3;
+		if (waveCleared >= 10) return 2;
+		return 1;
+	}
+
+	// ---- Ammo ------------------------------------------------------------
+
+	/// <summary>Refilling a weapon that has no bullet left costs nothing.</summary>
+	public static bool IsAmmoFree(Weapon weapon)
+	{
+		return weapon != null && weapon.BulletCount <= 0;
+	}
 
 	// ---- Survival mode ---------------------------------------------------
 

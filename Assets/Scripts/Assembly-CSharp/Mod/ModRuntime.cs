@@ -23,6 +23,12 @@ public class ModRuntime : MonoBehaviour
 
 	private float popupUntil;
 
+	private const float GemPopupTime = 3f;
+
+	private int gemPopup;
+
+	private float gemPopupUntil;
+
 	private GameUIScriptNew cachedUi;
 
 	private float nextUiLookup;
@@ -74,9 +80,73 @@ public class ModRuntime : MonoBehaviour
 		instance.popupUntil = Time.unscaledTime + PopupTime;
 	}
 
+	/// <summary>Shows "+N GEMS" under the counter for a few seconds.</summary>
+	public static void NotifyGemsEarned(int gems)
+	{
+		if (instance == null || gems <= 0)
+		{
+			return;
+		}
+		instance.gemPopup = gems;
+		instance.gemPopupUntil = Time.unscaledTime + GemPopupTime;
+	}
+
 	private void Update()
 	{
 		ModFX.Tick(Time.deltaTime);
+		// Android's back button and back gesture arrive as the Escape key.
+		if (Input.GetKeyDown(KeyCode.Escape))
+		{
+			HandleBack();
+		}
+	}
+
+	// Names the game gives its "go back" buttons, most specific first: a panel
+	// opened on top of a screen closes before the screen itself goes back.
+	private static readonly string[] BackButtonNames = new string[5] { "Panel_Back_Button", "Credits_Back_Button", "Back_Button", "BackButton", "Back" };
+
+	/// <summary>
+	/// In menus, presses the back button of whatever is on screen. During a
+	/// level the game already handles this key itself (it opens the pause menu).
+	/// </summary>
+	private void HandleBack()
+	{
+		if (InGame())
+		{
+			return;
+		}
+		try
+		{
+			GameObject cameraObject = GameObject.Find("TUI/TUICamera");
+			Camera uiCamera = (cameraObject == null) ? null : cameraObject.GetComponent<Camera>();
+			TUIControl[] controls = Object.FindObjectsOfType<TUIControl>();
+			for (int n = 0; n < BackButtonNames.Length; n++)
+			{
+				for (int i = 0; i < controls.Length; i++)
+				{
+					TUIControl control = controls[i];
+					if (control == null || control.name != BackButtonNames[n] || !control.gameObject.activeInHierarchy)
+					{
+						continue;
+					}
+					// Closed panels are parked off screen rather than disabled.
+					if (uiCamera != null)
+					{
+						Vector3 view = uiCamera.WorldToViewportPoint(control.transform.position);
+						if (view.x < 0f || view.x > 1f || view.y < 0f || view.y > 1f)
+						{
+							continue;
+						}
+					}
+					control.PostEvent(control, TUIButtonClick.CommandClick, 0f, 0f, null);
+					return;
+				}
+			}
+		}
+		catch (System.Exception ex)
+		{
+			Debug.LogWarning("[Mod] back button failed: " + ex.Message);
+		}
 	}
 
 	/// <summary>True while a level is being played (not in menus, loading or the shop).</summary>
@@ -147,6 +217,13 @@ public class ModRuntime : MonoBehaviour
 		}
 
 		int wave = ModTuning.CurrentSurvivalWave();
+		float gemLeft = gemPopupUntil - Time.unscaledTime;
+		if (gemLeft > 0f && gemPopup > 0)
+		{
+			float gemAlpha = Mathf.Clamp01(gemLeft / (GemPopupTime * 0.3f));
+			string gemText = "+" + ModFormat.Short(gemPopup) + ((gemPopup != 1) ? " GEMS" : " GEM");
+			DrawOutlined(new Rect(x, y + lineHeight * ((wave <= 0) ? 1f : 2f), h * 1.2f, lineHeight), gemText, labelStyle, new Color(0.4f, 0.9f, 1f, gemAlpha));
+		}
 		if (wave > 0)
 		{
 			// Same multiplier the kills and pickups are paid with, so it moves as soon as a new wave starts.

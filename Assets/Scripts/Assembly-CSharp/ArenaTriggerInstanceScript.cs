@@ -158,6 +158,7 @@ public class ArenaTriggerInstanceScript : MonoBehaviour
 			}
 			Debug.Log("******************wave completed**********************");
 			FinishedWaveNum = waveNum;
+			ModHooks.OnSurvivalWaveCleared(waveNum);
 			if (waveNum % InstanceModeConfig.BossWaveInterval == 0)
 			{
 				gameScene.GetPlayer().pickupItemsPacket.Clear();

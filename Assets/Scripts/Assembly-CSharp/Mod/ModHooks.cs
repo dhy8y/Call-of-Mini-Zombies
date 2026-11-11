@@ -157,6 +157,21 @@ public static class ModHooks
 		}
 	}
 
+	/// <summary>Survival: pays the gems for the wave that was just cleared.</summary>
+	public static void OnSurvivalWaveCleared(int wave)
+	{
+		try
+		{
+			int gems = ModTuning.SurvivalGems(wave);
+			GameApp.GetInstance().GetGameState().AddCrystal(gems);
+			ModRuntime.NotifyGemsEarned(gems);
+		}
+		catch (System.Exception ex)
+		{
+			Debug.LogWarning("[Mod] wave gems failed: " + ex.Message);
+		}
+	}
+
 	public static void OnPointsEarned(int points)
 	{
 		ModRuntime.NotifyPointsEarned(points);

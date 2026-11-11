@@ -518,7 +518,7 @@ public class WeaponShopMenuTUI : MonoBehaviour, TUIHandler
 			}
 			else
 			{
-				ammo_price.text_Accessor = "$" + w.WConf.bulletPrice.ToString("N0");
+				ammo_price.text_Accessor = ModTuning.IsAmmoFree(w) ? "FREE" : ("$" + w.WConf.bulletPrice.ToString("N0"));
 				bullet_logo.SetActive(true);
 				bullet_logo.GetComponent<TUIMeshSprite>().frameName_Accessor = w.WeaponBulletName;
 				bullet_count.gameObject.SetActive(true);

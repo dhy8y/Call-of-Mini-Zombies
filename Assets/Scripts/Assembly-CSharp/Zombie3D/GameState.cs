@@ -1044,7 +1044,8 @@ namespace Zombie3D
             {
                 LevelNum = 999;
             }
-            int crystalReward = (LevelNum / 10) + 1;
+            // Mod: LevelNum was just raised, so the day that was cleared is LevelNum - 1.
+            int crystalReward = ModTuning.CampaignGems(LevelNum - 1);
             AddCrystal(crystalReward);
             foreach (Weapon weapon in weaponList)
             {
@@ -1277,6 +1278,12 @@ namespace Zombie3D
 
         public bool BuyBullets(Weapon w, SafeInteger bulletsNum, int price)
         {
+            // Mod: an empty weapon is refilled for free, so running out of both
+            // ammo and money can never leave the player stuck.
+            if (ModTuning.IsAmmoFree(w))
+            {
+                price = 0;
+            }
             if (cash >= price)
             {
                 w.AddBullets(bulletsNum);
