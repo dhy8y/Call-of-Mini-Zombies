@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Threading;
 using UnityEngine;
 using Zombie3D;
 
@@ -24,6 +26,23 @@ public class ModRuntime : MonoBehaviour
 	private GameUIScriptNew cachedUi;
 
 	private float nextUiLookup;
+
+	/// <summary>
+	/// The game reads its config and saves with float.Parse, which follows the
+	/// device language. On a French (or German, Spanish...) device "0.9" is not
+	/// a valid number, the config fails to load and the start screen never
+	/// responds. Forcing the neutral number format before anything loads fixes
+	/// every such parse at once.
+	/// </summary>
+	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private static void UseNeutralNumberFormat()
+	{
+		CultureInfo neutral = CultureInfo.InvariantCulture;
+		CultureInfo.DefaultThreadCurrentCulture = neutral;
+		CultureInfo.DefaultThreadCurrentUICulture = neutral;
+		Thread.CurrentThread.CurrentCulture = neutral;
+		Thread.CurrentThread.CurrentUICulture = neutral;
+	}
 
 	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 	private static void Boot()
