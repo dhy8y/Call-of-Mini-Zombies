@@ -24,6 +24,7 @@ namespace Zombie3D
 			AvataConfigScript component = gameObject.GetComponent<AvataConfigScript>();
 			gameObject2 = Object.Instantiate(component.Avata_Instance, Vector3.zero, Quaternion.identity) as GameObject;
 			Object.Destroy(gameObject);
+			ModHooks.OnAvatarCreated(gameObject2);
 			return gameObject2;
 		}
 	}

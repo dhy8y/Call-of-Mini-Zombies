@@ -255,10 +255,8 @@ public class GameConfig
 						break;
 					}
 				}
-				if (!avatarConfig.isCrystalBuy)
-				{
-					avatarConfig.price = ModTuning.DiscountShopPrice(avatarConfig.price);
-				}
+				// Every character, whether bought with cash or gems.
+				avatarConfig.price = ModTuning.DiscountShopPrice(avatarConfig.price);
 				avatarConfTable.Add(avatarConfig.name, avatarConfig);
 				break;
 			}

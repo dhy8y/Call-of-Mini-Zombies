@@ -27,7 +27,7 @@ public class ArenaTriggerFromConfigScript : MonoBehaviour
 		gameScene.InitEnemyPool(GameApp.GetInstance().GetGameState().gameMode == GameMode.DinoHunting);
 		doors = GameObject.FindGameObjectsWithTag("Door");
 		GameParametersXML paramXML = new GameParametersXML();
-		if (Application.isEditor || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.Android)
+		if (Application.isEditor || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.LinuxPlayer || Application.platform == RuntimePlatform.Android)
 		{
 			spawnConfigInfo = paramXML.Load(null, GameApp.GetInstance().GetGameState().LevelNum, false);
 		}
@@ -42,7 +42,12 @@ public class ArenaTriggerFromConfigScript : MonoBehaviour
 		CheckDinoHunting();
 		CheckSpawnPrey();
 		yield return new WaitForSeconds(2f);
-		while (GameApp.GetInstance().GetGameState().loot_cash < ExpectedMaxLoot)
+		// Mod: a day used to end once enough cash had been looted. Kills now pay
+		// a few points, so that amount was never reached and the day never ended.
+		// A day is now a fixed number of zombies that grows with the day number.
+		int zombiesToSpawn = ModTuning.CampaignZombieCount(GameApp.GetInstance().GetGameState().LevelNum);
+		int zombiesSpawned = 0;
+		while (zombiesSpawned < zombiesToSpawn)
 		{
 			Round round;
 			if (!isDinoHunting)
@@ -68,7 +73,7 @@ public class ArenaTriggerFromConfigScript : MonoBehaviour
 				}
 			}
 			yield return new WaitForSeconds(round.intermission);
-			if (GameApp.GetInstance().GetGameState().gameMode == GameMode.SoloBoss && !spawnedBoss && GameApp.GetInstance().GetGameState().loot_cash >= ExpectedMaxLoot / 2)
+			if (GameApp.GetInstance().GetGameState().gameMode == GameMode.SoloBoss && !spawnedBoss && zombiesSpawned >= zombiesToSpawn / 2)
 			{
 				SpawnBoss();
 				spawnedBoss = true;
@@ -82,6 +87,10 @@ public class ArenaTriggerFromConfigScript : MonoBehaviour
 				}
 				for (int j = 0; j < enemyInfo.Count; j++)
 				{
+					if (zombiesSpawned >= zombiesToSpawn)
+					{
+						break;
+					}
 					for (int enemyLeft = GameApp.GetInstance().GetGameScene().GetEnemies()
 						.Count; enemyLeft >= 8; enemyLeft = GameApp.GetInstance().GetGameScene().GetEnemies()
 						.Count)
@@ -107,6 +116,7 @@ public class ArenaTriggerFromConfigScript : MonoBehaviour
 					}
 					bool bElite = false;
 					EnermyFactory.SpawnEnemy(isElite: EliteSpawn(enemyInfo.EType, enemyInfo.Count, j), id: gameScene.GetNextEnemyID(), isPrey: false, isBoss: false, enermyType: enemyInfo.EType, fromWhere: enemyInfo.From, position: spawnPosition);
+					zombiesSpawned++;
 					yield return new WaitForSeconds(0.3f);
 				}
 			}

@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Thin black line around an enemy's silhouette, which turns into a coloured
-/// glow for a moment when the enemy is hit.
+/// Thin black line around a character's silhouette (enemies and player
+/// characters). On enemies it turns into a coloured glow for a moment when hit.
 ///
 /// The enemy's own material is left untouched. A second skinned renderer shares
 /// the same bones and draws the outline shader on top (see ModOutline.shader).
@@ -25,6 +25,9 @@ public class ZombieOutline : MonoBehaviour
 	private static readonly int FlashColorId = Shader.PropertyToID("_FlashColor");
 
 	private readonly List<Renderer> outlineRenderers = new List<Renderer>();
+
+	// The renderer each outline copies, in the same order.
+	private readonly List<Renderer> sourceRenderers = new List<Renderer>();
 
 	private MaterialPropertyBlock block;
 
@@ -115,6 +118,7 @@ public class ZombieOutline : MonoBehaviour
 			}
 			outline.sharedMaterials = materials;
 			outlineRenderers.Add(outline);
+			sourceRenderers.Add(source);
 		}
 	}
 
@@ -227,6 +231,23 @@ public class ZombieOutline : MonoBehaviour
 		float t = flashLeft / flashDuration;
 		// Stay bright for most of the time, then drop off quickly.
 		Apply(Mathf.Sqrt(t));
+	}
+
+	/// <summary>
+	/// The game hides a character by switching its renderers off (for example
+	/// while it blinks after a hit). The outline has to disappear with it.
+	/// </summary>
+	private void LateUpdate()
+	{
+		for (int i = 0; i < outlineRenderers.Count; i++)
+		{
+			Renderer outline = outlineRenderers[i];
+			Renderer source = sourceRenderers[i];
+			if (outline != null && source != null && outline.enabled != source.enabled)
+			{
+				outline.enabled = source.enabled;
+			}
+		}
 	}
 
 	private void Apply(float amount)

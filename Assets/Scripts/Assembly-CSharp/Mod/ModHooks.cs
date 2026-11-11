@@ -59,6 +59,22 @@ public static class ModHooks
 		}
 	}
 
+	/// <summary>A player character was created, in a level or in a menu that shows it.</summary>
+	public static void OnAvatarCreated(GameObject avatar)
+	{
+		try
+		{
+			if (avatar != null)
+			{
+				ZombieOutline.Attach(avatar);
+			}
+		}
+		catch (System.Exception ex)
+		{
+			Debug.LogWarning("[Mod] character outline failed: " + ex.Message);
+		}
+	}
+
 	public static void OnEnemyHit(Enemy enemy, Vector3 hitForce, WeaponType weaponType)
 	{
 		// NoGun is the game removing an enemy by itself (fell out of the map, crushed by a boss).

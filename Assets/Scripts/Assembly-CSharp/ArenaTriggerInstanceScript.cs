@@ -44,7 +44,7 @@ public class ArenaTriggerInstanceScript : MonoBehaviour
 		GameParametersXML paramXML = new GameParametersXML();
 		spawnConfigs = new List<SpawnConfig>();
 		spawnConfigs_random = new List<SpawnConfig>();
-		if (Application.isEditor || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.Android)
+		if (Application.isEditor || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.LinuxPlayer || Application.platform == RuntimePlatform.Android)
 		{
 			int wave_idx2 = 1;
 			for (int day_idx2 = (wave_idx2 - 1) * 5 + 1; day_idx2 <= 30; day_idx2 = (wave_idx2 - 1) * 5 + 1)
@@ -95,6 +95,7 @@ public class ArenaTriggerInstanceScript : MonoBehaviour
 			int GotLoot = 0;
 			Debug.Log("Wave num: " + waveNum + "  standard loot: " + gameScene.GetEnemyAttributesComputingFactor("loot"));
 			bool spawnedBoss = false;
+			bool firstRoundOfWave = true;
 			while (GotLoot < ExpectedMaxLoot)
 			{
 				Debug.Log("spawned enemy total cash: " + GotLoot + "  expected enemy total cash: " + ExpectedMaxLoot);
@@ -105,7 +106,8 @@ public class ArenaTriggerInstanceScript : MonoBehaviour
 					select_round2 = Random.Range(0, currentSpawnConfig.Rounds.Count);
 					round = currentSpawnConfig.Rounds[select_round2];
 				}
-				yield return new WaitForSeconds(round.intermission);
+				yield return new WaitForSeconds(ModTuning.SurvivalSpawnDelay(round.intermission, waveNum, firstRoundOfWave));
+				firstRoundOfWave = false;
 				if (waveNum % InstanceModeConfig.BossWaveInterval == 0 && !spawnedBoss && GotLoot >= ExpectedMaxLoot / 2)
 				{
 					SpawnBoss();

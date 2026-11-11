@@ -66,6 +66,45 @@ public static class ModTuning
 		return 1;
 	}
 
+	// ---- Campaign days ---------------------------------------------------
+
+	public const int CampaignFirstDayZombies = 10;
+
+	public const int CampaignExtraZombiesPerDay = 3;
+
+	/// <summary>Day 1 has 10 zombies, day 2 has 13, day 3 has 16...</summary>
+	public static int CampaignZombieCount(int day)
+	{
+		return CampaignFirstDayZombies + CampaignExtraZombiesPerDay * Mathf.Max(0, day - 1);
+	}
+
+	// ---- Survival pacing -------------------------------------------------
+
+	/// <summary>False: waves have no countdown and the game never ends on "time up".</summary>
+	public const bool SurvivalHasTimeLimit = false;
+
+	/// <summary>Seconds before the very first zombies appear.</summary>
+	public const float SurvivalFirstSpawnDelay = 2f;
+
+	/// <summary>Longest wait before a new wave starts spawning.</summary>
+	public const float SurvivalMaxWaveStartDelay = 3f;
+
+	/// <summary>Waits between groups of zombies inside a wave are multiplied by this.</summary>
+	public const float SurvivalGroupDelayScale = 0.7f;
+
+	public static float SurvivalSpawnDelay(float originalDelay, int wave, bool firstGroupOfWave)
+	{
+		if (firstGroupOfWave)
+		{
+			if (wave <= 1)
+			{
+				return SurvivalFirstSpawnDelay;
+			}
+			return Mathf.Min(originalDelay, SurvivalMaxWaveStartDelay);
+		}
+		return originalDelay * SurvivalGroupDelayScale;
+	}
+
 	// ---- Ammo ------------------------------------------------------------
 
 	/// <summary>Refilling a weapon that has no bullet left costs nothing.</summary>

@@ -14,7 +14,7 @@ public class TrinitiUIScript : MonoBehaviour
 		PushLocalNotification.SetPushNotification();
 		LocalNotificationWrapper.CancelAll();
 		Debug.Log("save file: " + Application.persistentDataPath + "/");
-		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.WindowsPlayer)
+		if (Application.isEditor || Application.platform == RuntimePlatform.OSXPlayer || Application.platform == RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.LinuxPlayer)
 		{
 			Application.runInBackground = true;
 		}

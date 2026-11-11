@@ -28,6 +28,8 @@ public class InstanceModeGameStatisticsUI : MonoBehaviour
 
 	private float timeEffectTimer = 5f;
 
+	private bool timerHidden;
+
 	public float timer { get; set; }
 
 	private void Start()
@@ -43,6 +45,19 @@ public class InstanceModeGameStatisticsUI : MonoBehaviour
 
 	private void Update()
 	{
+		// Mod: survival has no time limit any more, so the countdown is hidden
+		// and never reaches the "time up" game over.
+		if (!ModTuning.SurvivalHasTimeLimit)
+		{
+			if (!timerHidden)
+			{
+				timerHidden = true;
+				time.text_Accessor = string.Empty;
+				effect.SetActive(false);
+				alertbk.SetActive(false);
+			}
+			return;
+		}
 		deltaTime += Time.deltaTime;
 		if ((double)deltaTime <= 0.02)
 		{
@@ -93,6 +108,10 @@ public class InstanceModeGameStatisticsUI : MonoBehaviour
 
 	public void AddTimeEffect()
 	{
+		if (!ModTuning.SurvivalHasTimeLimit)
+		{
+			return;
+		}
 		addingTimeEffect = true;
 		effect.SetActive(true);
 		timeEffectTimer = 5f;
