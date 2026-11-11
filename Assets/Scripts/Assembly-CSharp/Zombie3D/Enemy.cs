@@ -395,6 +395,7 @@ namespace Zombie3D
 					mAttributes.Loot = 0;
 					Debug.Log("hp: " + mAttributes.Hp + " damage: " + mAttributes.AttackDamage);
 				}
+				FinishAttributes();
 				return;
 			}
 			if (IsElite)
@@ -417,6 +418,28 @@ namespace Zombie3D
 				mAttributes.Loot = Mathf.RoundToInt((float)mAttributes.Loot * InstanceModeConfig.CashAdjust);
 				mAttributes.ExpLoot = Mathf.RoundToInt((float)mAttributes.ExpLoot * InstanceModeConfig.ExpAdjust);
 			}
+			FinishAttributes();
+		}
+
+		// Mod: the original cash loot only keeps driving how many enemies a wave
+		// spawns (SpawnBudget). What a kill actually pays is now a small number of
+		// points: 1 to 5 by toughness, and proportional to life for bosses.
+		private void FinishAttributes()
+		{
+			mAttributes.MaxHp = mAttributes.Hp;
+			mAttributes.SpawnBudget = mAttributes.Loot;
+			if (GameApp.GetInstance().GetGameState().gameMode == GameMode.Coop && IsSuperBoss)
+			{
+				mAttributes.Loot = 0;
+				return;
+			}
+			mAttributes.Loot = ModTuning.PointsFor(enemyType, IsElite, IsSuperBoss || IsPrey, mAttributes.MaxHp, gameScene.GetEnemyAttributesComputingFactor("hp"));
+		}
+
+		/// <summary>Points paid for killing this enemy right now (survival waves multiply them).</summary>
+		public int GetKillPoints()
+		{
+			return ModTuning.ApplySurvivalMultiplier(mAttributes.Loot);
 		}
 
 		public virtual void Init(GameObject gObject)
@@ -456,6 +479,7 @@ namespace Zombie3D
 			rot_to = Quaternion.Euler(enemyTransform.rotation.x, enemyTransform.rotation.y, enemyTransform.rotation.z);
 			CreatePreyTip();
 			InitEnemyMark();
+			ModHooks.OnEnemySpawned(this);
 		}
 
 		public void InitEnemyMark()
@@ -532,6 +556,7 @@ namespace Zombie3D
 				}
 			}
 			UnityEngine.Object.Instantiate(rConfig.hitBlood, enemyTransform.position + Vector3.up * 1f, Quaternion.identity);
+			ModHooks.OnEnemyHit(this, dp.hitForce, weaponType);
 			mAttributes.Hp -= dp.damage;
 			criticalAttacked = criticalAttack;
 			if (IsSuperBoss && CouldPlayHitAnimation())
@@ -570,6 +595,7 @@ namespace Zombie3D
 			if (state != GRAVEBORN_STATE)
 			{
 				UnityEngine.Object.Instantiate(rConfig.hitBlood, enemyTransform.position + Vector3.up * 1f, Quaternion.identity);
+				ModHooks.OnEnemyHit(this, Vector3.zero, weaponType);
 				mAttributes.Hp -= dp;
 				criticalAttacked = criticalAttack == 1;
 				state.OnHit(this);
@@ -762,7 +788,7 @@ namespace Zombie3D
 						enemyObject.SendMessage("OnLoot", IsPrey);
 					}
 					GameApp.GetInstance().GetGameState().AddAvatarExp(mAttributes.ExpLoot);
-					GameApp.GetInstance().GetGameState().AddCashForRecord(mAttributes.Loot);
+					GameApp.GetInstance().GetGameState().AddCashForRecord(GetKillPoints());
 				}
 			}
 			else
@@ -773,7 +799,7 @@ namespace Zombie3D
 					enemyObject.SendMessage("OnSuperBossLoot");
 				}
 				GameApp.GetInstance().GetGameState().AddAvatarExp(mAttributes.ExpLoot);
-				GameApp.GetInstance().GetGameState().AddCashForRecord(mAttributes.Loot);
+				GameApp.GetInstance().GetGameState().AddCashForRecord(GetKillPoints());
 			}
 			if (enemyType == EnemyType.E_DOG || enemyType == EnemyType.E_HELL_FIRER || enemyType == EnemyType.E_POLICE || enemyType == EnemyType.E_VELOCI || enemyType == EnemyType.E_DILO)
 			{

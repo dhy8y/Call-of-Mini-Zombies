@@ -1307,14 +1307,14 @@ namespace Zombie3D
 			}
 			case ItemType.Gold:
 			{
-				int cashGot = (int)(300f * GameApp.GetInstance().GetGameScene().GetEnemyAttributesComputingFactor("woodboxLoot"));
+				int cashGot = ModTuning.PickupPoints(false);
 				GameApp.GetInstance().GetGameState().AddCashForRecord(cashGot);
 				audioPlayer.PlayAudio("GetMoney");
 				break;
 			}
 			case ItemType.Gold_Big:
 			{
-				int cashGot = (int)(300f * GameApp.GetInstance().GetGameScene().GetEnemyAttributesComputingFactor("woodboxLoot") * 5f);
+				int cashGot = ModTuning.PickupPoints(true);
 				GameApp.GetInstance().GetGameState().AddCashForRecord(cashGot);
 				audioPlayer.PlayAudio("GetMoney");
 				break;

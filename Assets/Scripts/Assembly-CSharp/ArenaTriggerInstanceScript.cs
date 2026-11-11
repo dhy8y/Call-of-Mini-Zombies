@@ -17,6 +17,15 @@ public class ArenaTriggerInstanceScript : MonoBehaviour
 
 	public int FinishedWaveNum;
 
+	// Mod: wave being played, read by the points multiplier and the HUD.
+	public int CurrentWave
+	{
+		get
+		{
+			return waveNum;
+		}
+	}
+
 	public void UpdateGameStatistics()
 	{
 		gameScene.GameGUI.SetInstanceStatistics(waveNum, GameApp.GetInstance().GetGameState().instance_score);
@@ -132,7 +141,7 @@ public class ArenaTriggerInstanceScript : MonoBehaviour
 						}
 						bool bElite = false;
 						Enemy m_enemy = EnermyFactory.SpawnEnemy(isElite: ArenaTriggerFromConfigScript.EliteSpawn(enemyInfo.EType, enemyInfo.Count, k), id: gameScene.GetNextEnemyID(), isPrey: false, isBoss: false, enermyType: enemyInfo.EType, fromWhere: enemyInfo.From, position: spawnPosition);
-						GotLoot += m_enemy.Attributes.Loot;
+						GotLoot += m_enemy.Attributes.SpawnBudget;
 						yield return new WaitForSeconds(0.3f);
 					}
 				}

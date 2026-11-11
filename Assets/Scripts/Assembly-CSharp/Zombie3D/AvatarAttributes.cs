@@ -62,7 +62,7 @@ namespace Zombie3D
 			int num2 = (int)((UpgradeParas.AvatarHpParas["a"] * Mathf.Pow(hpBuyCount + 1, 2f) + UpgradeParas.AvatarHpParas["b"] * (float)(hpBuyCount + 1) + UpgradeParas.AvatarHpParas["c"]) * aConf.hpBuyWeight);
 			num2 = ((num2 % 10 >= 5) ? (num2 - num2 % 10 + 10) : (num2 - num2 % 10));
 			hpBuyNext = num2 - num;
-			hpBuyPrice = (int)((UpgradeParas.AvatarHpPriceParas["a"] * Mathf.Pow(hpBuyCount + 1, UpgradeParas.AvatarHpPriceParas["k"]) + UpgradeParas.AvatarHpPriceParas["b"]) * aConf.hpBuyPriceWeight);
+			hpBuyPrice = ModTuning.DiscountUpgradePrice((int)((UpgradeParas.AvatarHpPriceParas["a"] * Mathf.Pow(hpBuyCount + 1, UpgradeParas.AvatarHpPriceParas["k"]) + UpgradeParas.AvatarHpPriceParas["b"]) * aConf.hpBuyPriceWeight));
 		}
 
 		public int GetLastMaxHp()

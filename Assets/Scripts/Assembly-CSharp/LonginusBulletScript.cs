@@ -64,6 +64,7 @@ public class LonginusBulletScript : MonoBehaviour
 		}
 		Vector3 position = new Vector3(base.transform.position.x, num + 0.1f, base.transform.position.z);
 		Object.Instantiate(rConf.GetExplosionFloor(Application.loadedLevelName), position, Quaternion.Euler(270f, 0f, 0f));
+		ModHooks.OnExplosion(position);
 		GameObject gameObject = Object.Instantiate(rConf.longinusGoldExplosion, proTransform.position + Vector3.up * 0.1f, Quaternion.LookRotation(base.transform.forward)) as GameObject;
 		gameObject.GetComponent<AudioSource>().mute = !GameApp.GetInstance().GetGameState().SoundOn;
 		GameScene gameScene = GameApp.GetInstance().GetGameScene();

@@ -215,6 +215,7 @@ namespace Zombie3D
 				mAttributes.accuracy = WConf.accuracyFinal;
 				mAttributes.upgradePrice = (int)((UpgradeParas.WeaponParas["a"] * (float)Level * (float)Level + UpgradeParas.WeaponParas["b"] * (float)Level + UpgradeParas.WeaponParas["c"]) * WConf.upgradePriceWeight * UpgradeParas.WeaponParas["d"]);
 			}
+			mAttributes.upgradePrice = ModTuning.DiscountUpgradePrice(mAttributes.upgradePrice);
 			mAttributes.damage = (float)Math.Round(mAttributes.damage, 1);
 			mAttributes.attackFrenquency = (float)Math.Round(mAttributes.attackFrenquency, 2);
 			mAttributes.accuracy = (float)Math.Round(mAttributes.accuracy, 1);

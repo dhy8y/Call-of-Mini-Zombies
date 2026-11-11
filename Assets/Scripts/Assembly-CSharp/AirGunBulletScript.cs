@@ -72,6 +72,7 @@ public class AirGunBulletScript : MonoBehaviour
 		}
 		Vector3 position = new Vector3(base.transform.position.x, num + 0.1f, base.transform.position.z);
 		Object.Instantiate(rConf.GetExplosionFloor(Application.loadedLevelName), position, Quaternion.Euler(270f, 0f, 0f));
+		ModHooks.OnExplosion(position);
 		Object.Instantiate(hitObjectEffect, proTransform.position + Vector3.up * 0.1f, Quaternion.identity);
 		if (GameApp.GetInstance().GetGameState().gameMode == GameMode.Vs)
 		{

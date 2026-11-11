@@ -101,6 +101,7 @@ namespace Zombie3D
 				OnPastorAffect();
 			}
 			Object.Instantiate(rConfig.hitBlood, enemyTransform.position + Vector3.up * 1.5f, Quaternion.identity);
+			ModHooks.OnEnemyHit(this, dp.hitForce, weaponType);
 			if ((mAttributes.Hp >= maxHp * 0.6 && mAttributes.Hp - (double)dp.damage < maxHp * 0.6) || (mAttributes.Hp >= maxHp * 0.3 && mAttributes.Hp - (double)dp.damage < maxHp * 0.3))
 			{
 				state.OnHit(this);
@@ -137,6 +138,7 @@ namespace Zombie3D
 			if (state != Enemy.GRAVEBORN_STATE)
 			{
 				Object.Instantiate(rConfig.hitBlood, enemyTransform.position + Vector3.up * 1.5f, Quaternion.identity);
+				ModHooks.OnEnemyHit(this, Vector3.zero, weaponType);
 				criticalAttacked = criticalAttack == 1;
 				if ((mAttributes.Hp >= maxHp * 0.6 && mAttributes.Hp - dp < maxHp * 0.6) || (mAttributes.Hp >= maxHp * 0.3 && mAttributes.Hp - dp < maxHp * 0.3))
 				{
@@ -209,7 +211,7 @@ namespace Zombie3D
 				{
 					(gameScene as GameMultiplayerScene).OnGameWin();
 					GameApp.GetInstance().GetGameState().AddAvatarExp(mAttributes.ExpLoot);
-					GameApp.GetInstance().GetGameState().AddCashForRecord(mAttributes.Loot);
+					GameApp.GetInstance().GetGameState().AddCashForRecord(GetKillPoints());
 				}
 			}
 			else
@@ -217,7 +219,7 @@ namespace Zombie3D
 				enemyObject.SendMessage("OnLoot", false);
 				enemyObject.SendMessage("OnSuperBossLoot");
 				GameApp.GetInstance().GetGameState().AddAvatarExp(mAttributes.ExpLoot);
-				GameApp.GetInstance().GetGameState().AddCashForRecord(mAttributes.Loot);
+				GameApp.GetInstance().GetGameState().AddCashForRecord(GetKillPoints());
 			}
 			RemoveEnemyMark();
 		}

@@ -76,6 +76,7 @@ namespace Zombie3D
 				OnPastorAffect();
 			}
 			Object.Instantiate(rConfig.hitBlood, enemyTransform.position + Vector3.up * 1.5f, Quaternion.identity);
+			ModHooks.OnEnemyHit(this, dp.hitForce, weaponType);
 			mAttributes.Hp -= dp.damage;
 			if (Random.Range(0, 100) < 10 && Time.time - lastGotHitTime > 2f)
 			{
@@ -168,14 +169,14 @@ namespace Zombie3D
 						enemyObject.SendMessage("OnLoot", IsPrey);
 					}
 					GameApp.GetInstance().GetGameState().AddAvatarExp(mAttributes.ExpLoot);
-					GameApp.GetInstance().GetGameState().AddCashForRecord(mAttributes.Loot);
+					GameApp.GetInstance().GetGameState().AddCashForRecord(GetKillPoints());
 				}
 			}
 			else
 			{
 				enemyObject.SendMessage("OnLoot", IsPrey);
 				GameApp.GetInstance().GetGameState().AddAvatarExp(mAttributes.ExpLoot);
-				GameApp.GetInstance().GetGameState().AddCashForRecord(mAttributes.Loot);
+				GameApp.GetInstance().GetGameState().AddCashForRecord(GetKillPoints());
 			}
 			CheckPreyEnemyDeath();
 			RemoveEnemyMark();

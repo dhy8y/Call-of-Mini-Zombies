@@ -1110,9 +1110,10 @@ namespace Zombie3D
 
         public void AddCashForRecord(int cashGot)
         {
-            loot_cash += cashGot;
+            loot_cash = new SafeInteger(Mathf.Clamp((int)loot_cash + cashGot, 0, ModTuning.MaxPointsPerGame));
             AddCash(cashGot);
             GameApp.GetInstance().GetGameScene().UpdateGameStatistics();
+            ModHooks.OnPointsEarned(cashGot);
         }
 
         public void LoseCash(int cashSpend)

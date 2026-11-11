@@ -94,8 +94,8 @@ internal class LootManagerScript : MonoBehaviour
 			enemy.IsElite = false;
 			enemy.IsPrey = false;
 			enemy.IsSuperBoss = false;
-			enemy.Init(gameObject);
 			enemy.EnemyType = EnemyType.E_DOG;
+			enemy.Init(gameObject);
 			enemy.Name = gameObject.name;
 			GameApp.GetInstance().GetGameScene().GetEnemies()
 				.Add(gameObject.name, enemy);

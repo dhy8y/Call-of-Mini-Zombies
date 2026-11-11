@@ -126,6 +126,7 @@ namespace Zombie3D
 						{
 							sparksObjectPool.CreateObject(raycastHit.point, -ray.direction);
 						}
+						ModHooks.OnBulletHitEnemy(raycastHit.point, ray.direction);
 						DamageProperty damageProperty = new DamageProperty();
 						damageProperty.hitForce = ray.direction * mAttributes.hitForce;
 						damageProperty.damage = base.player.Damage;
@@ -161,6 +162,7 @@ namespace Zombie3D
 					{
 						sparksObjectPool.CreateObject(raycastHit.point, -ray.direction);
 					}
+					ModHooks.OnBulletHitSurface(raycastHit.point, raycastHit.normal);
 					if (gameObject2.layer == 19)
 					{
 						WoodBoxScript component2 = gameObject2.GetComponent<WoodBoxScript>();
