@@ -41,6 +41,21 @@ public class ZombieOutline : MonoBehaviour
 
 	private bool built;
 
+	private bool hidden;
+
+	/// <summary>Hides the outline while the body dissolves.</summary>
+	public void SetHidden(bool value)
+	{
+		hidden = value;
+		for (int i = 0; i < outlineRenderers.Count; i++)
+		{
+			if (outlineRenderers[i] != null)
+			{
+				outlineRenderers[i].enabled = !value && (i >= sourceRenderers.Count || sourceRenderers[i] == null || sourceRenderers[i].enabled);
+			}
+		}
+	}
+
 	/// <summary>Adds the outline once; enemies recycled from the pool keep theirs.</summary>
 	public static ZombieOutline Attach(GameObject enemy)
 	{
@@ -95,6 +110,17 @@ public class ZombieOutline : MonoBehaviour
 			if (source == null || source.sharedMesh == null || source.gameObject.name == OutlineObjectName)
 			{
 				continue;
+			}
+			// A pooled enemy copied from another one already carries that one's
+			// outline: remove it so the outline is not drawn twice.
+			for (int c = source.transform.childCount - 1; c >= 0; c--)
+			{
+				Transform old = source.transform.GetChild(c);
+				if (old.name == OutlineObjectName)
+				{
+					old.gameObject.SetActive(false);
+					Object.Destroy(old.gameObject);
+				}
 			}
 			GameObject child = new GameObject(OutlineObjectName);
 			child.layer = source.gameObject.layer;
@@ -243,9 +269,10 @@ public class ZombieOutline : MonoBehaviour
 		{
 			Renderer outline = outlineRenderers[i];
 			Renderer source = sourceRenderers[i];
-			if (outline != null && source != null && outline.enabled != source.enabled)
+			bool show = source != null && source.enabled && !hidden;
+			if (outline != null && outline.enabled != show)
 			{
-				outline.enabled = source.enabled;
+				outline.enabled = show;
 			}
 		}
 	}

@@ -749,6 +749,26 @@ namespace Zombie3D
 		public void RemoveDeadbodyCheck()
 		{
 			gameScene.GetEnemies().Remove(enemyObject.name);
+			FinishDeadbodyRemoval();
+		}
+
+		// Mod: a body that died normally stays on the ground and dissolves into
+		// pixels first (ModCorpse), then comes back here to be removed.
+		public void RemoveDeadbodyAfterEffect()
+		{
+			gameScene.GetEnemies().Remove(enemyObject.name);
+			if (!ModCorpse.TryStart(this))
+			{
+				FinishDeadbodyRemoval();
+			}
+		}
+
+		public void FinishDeadbodyRemoval()
+		{
+			if (enemyObject == null)
+			{
+				return;
+			}
 			if (DestroyAfterDead)
 			{
 				if (enemyObject != null)

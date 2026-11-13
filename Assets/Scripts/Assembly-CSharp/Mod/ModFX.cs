@@ -45,6 +45,10 @@ public static class ModFX
 
 	private static ParticleSystem sparks;
 
+	private static ParticleSystem pixels;
+
+	private static Material pixelMaterial;
+
 	private static Material particleMaterial;
 
 	private static Texture2D softDot;
@@ -126,6 +130,24 @@ public static class ModFX
 		PlaceMark(groundPosition, Vector3.up, Random.Range(2.6f, 3.4f), new Color(0.03f, 0.03f, 0.03f, 0.7f), ScorchMarkLife);
 	}
 
+	/// <summary>Square bits drifting up out of a dissolving body.</summary>
+	public static void PixelBits(Bounds area, int count)
+	{
+		if (!Ensure())
+		{
+			return;
+		}
+		Vector3 min = area.min;
+		Vector3 size = area.size;
+		for (int i = 0; i < count; i++)
+		{
+			Vector3 position = min + new Vector3(Random.value * size.x, Random.value * size.y, Random.value * size.z);
+			Vector3 velocity = new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(0.6f, 1.8f), Random.Range(-0.4f, 0.4f));
+			Color color = (Random.value < 0.35f) ? new Color(1f, Random.Range(0.45f, 0.75f), 0.1f, 1f) : new Color(Random.Range(0.15f, 0.35f), Random.Range(0.3f, 0.5f), Random.Range(0.15f, 0.25f), 1f);
+			Emit(pixels, position, velocity, Random.Range(0.05f, 0.11f), Random.Range(0.6f, 1.1f), color);
+		}
+	}
+
 	/// <summary>Fades the ground marks out. Called once per frame by ModRuntime.</summary>
 	public static void Tick(float deltaTime)
 	{
@@ -191,6 +213,15 @@ public static class ModFX
 		blood = CreateSystem("Blood", 400, 1.6f, false, 1f, 0.6f);
 		dust = CreateSystem("Dust", 300, -0.04f, false, 1f, 2.4f);
 		sparks = CreateSystem("Sparks", 300, 1.1f, true, 1f, 0.3f);
+		if (pixelMaterial == null)
+		{
+			// Hard-edged squares, so the bits read as pixels.
+			pixelMaterial = new Material(particleMaterial.shader);
+			pixelMaterial.name = "ModPixel";
+			pixelMaterial.mainTexture = Texture2D.whiteTexture;
+		}
+		pixels = CreateSystem("Pixels", 500, -0.15f, false, 1f, 0.2f);
+		pixels.GetComponent<ParticleSystemRenderer>().sharedMaterial = pixelMaterial;
 		return true;
 	}
 

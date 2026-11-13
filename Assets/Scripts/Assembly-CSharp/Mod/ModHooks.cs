@@ -50,6 +50,7 @@ public static class ModHooks
 			GameObject obj = enemy.GetEnemyObject();
 			if (obj != null)
 			{
+				ModCorpse.CleanUpOnSpawn(obj);
 				ZombieOutline.Attach(obj);
 			}
 		}

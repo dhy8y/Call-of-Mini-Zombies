@@ -6,9 +6,9 @@ namespace Zombie3D
 	{
 		public override void NextState(Enemy enemy, float deltaTime, Player player)
 		{
-			if (Time.time - startTime >= 2f)
+			if (Time.time - startTime >= ModTuning.CorpseListRemovalTime)
 			{
-				enemy.RemoveDeadbodyCheck();
+				enemy.RemoveDeadbodyAfterEffect();
 			}
 		}
 

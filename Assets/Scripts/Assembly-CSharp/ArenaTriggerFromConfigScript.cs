@@ -72,7 +72,7 @@ public class ArenaTriggerFromConfigScript : MonoBehaviour
 					}
 				}
 			}
-			yield return new WaitForSeconds(round.intermission);
+			yield return new WaitForSeconds(round.intermission * ModTuning.CampaignGroupDelayScale);
 			if (GameApp.GetInstance().GetGameState().gameMode == GameMode.SoloBoss && !spawnedBoss && zombiesSpawned >= zombiesToSpawn / 2)
 			{
 				SpawnBoss();
@@ -92,7 +92,7 @@ public class ArenaTriggerFromConfigScript : MonoBehaviour
 						break;
 					}
 					for (int enemyLeft = GameApp.GetInstance().GetGameScene().GetEnemies()
-						.Count; enemyLeft >= 8; enemyLeft = GameApp.GetInstance().GetGameScene().GetEnemies()
+						.Count; enemyLeft >= ModTuning.CampaignMaxZombiesOnMap; enemyLeft = GameApp.GetInstance().GetGameScene().GetEnemies()
 						.Count)
 					{
 						yield return 0;
@@ -117,7 +117,7 @@ public class ArenaTriggerFromConfigScript : MonoBehaviour
 					bool bElite = false;
 					EnermyFactory.SpawnEnemy(isElite: EliteSpawn(enemyInfo.EType, enemyInfo.Count, j), id: gameScene.GetNextEnemyID(), isPrey: false, isBoss: false, enermyType: enemyInfo.EType, fromWhere: enemyInfo.From, position: spawnPosition);
 					zombiesSpawned++;
-					yield return new WaitForSeconds(0.3f);
+					yield return new WaitForSeconds(ModTuning.CampaignSpawnInterval);
 				}
 			}
 		}

@@ -9,7 +9,7 @@ using Zombie3D;
 public static class ModTuning
 {
 	/// <summary>Shown in the corner of the menus, to tell which build is installed.</summary>
-	public const string BuildLabel = "MOD BUILD 10";
+	public const string BuildLabel = "MOD BUILD 11";
 
 	// ---- Prices ----------------------------------------------------------
 
@@ -45,27 +45,34 @@ public static class ModTuning
 
 	// ---- Gems (crystals) -------------------------------------------------
 
-	/// <summary>No single day or wave pays more gems than this.</summary>
-	public const int MaxGemsPerReward = 100;
-
-	/// <summary>Campaign: clearing day 1 pays 1 gem, day 2 pays 2, day 3 pays 3...</summary>
+	/// <summary>Campaign: clearing day 1 pays 1 gem, day 2 pays 2, day 3 pays 3... with no limit.</summary>
 	public static int CampaignGems(int dayCleared)
 	{
-		return Mathf.Clamp(dayCleared, 1, MaxGemsPerReward);
+		return Mathf.Max(1, dayCleared);
 	}
 
-	/// <summary>Survival: gems paid for each wave cleared, by wave number.</summary>
+	/// <summary>
+	/// Survival: each wave pays more gems than the one before it.
+	/// The step grows with the wave: +1 per wave up to wave 9, +2 from wave 10,
+	/// +3 from wave 15, +5 from wave 20 and +7 from wave 25 on.
+	/// Wave 1 = 1, wave 9 = 9, wave 10 = 11, wave 15 = 22, wave 20 = 39, wave 25 = 66.
+	/// </summary>
 	public static int SurvivalGems(int waveCleared)
 	{
-		if (waveCleared >= 50) return 100;
-		if (waveCleared >= 45) return 50;
-		if (waveCleared >= 40) return 30;
-		if (waveCleared >= 35) return 25;
-		if (waveCleared >= 30) return 15;
-		if (waveCleared >= 25) return 10;
-		if (waveCleared >= 20) return 5;
-		if (waveCleared >= 15) return 3;
-		if (waveCleared >= 10) return 2;
+		int gems = 0;
+		for (int w = 1; w <= waveCleared; w++)
+		{
+			gems += SurvivalGemStep(w);
+		}
+		return Mathf.Max(1, gems);
+	}
+
+	private static int SurvivalGemStep(int wave)
+	{
+		if (wave >= 25) return 7;
+		if (wave >= 20) return 5;
+		if (wave >= 15) return 3;
+		if (wave >= 10) return 2;
 		return 1;
 	}
 
@@ -86,16 +93,40 @@ public static class ModTuning
 	/// <summary>Move speed while sprinting, compared with normal speed.</summary>
 	public const float SprintSpeedMultiplier = 1.6f;
 
+	// ---- Dead bodies -----------------------------------------------------
+
+	/// <summary>Seconds a dead body stays on the ground before it dissolves.</summary>
+	public const float CorpseGroundTime = 5f;
+
+	/// <summary>Seconds after death when the enemy stops counting (the original removal time).</summary>
+	public const float CorpseListRemovalTime = 2f;
+
+	/// <summary>Seconds the pixel dissolve takes.</summary>
+	public const float CorpseDissolveTime = 1.2f;
+
 	// ---- Campaign days ---------------------------------------------------
 
 	public const int CampaignFirstDayZombies = 10;
 
 	public const int CampaignExtraZombiesPerDay = 3;
 
-	/// <summary>Day 1 has 10 zombies, day 2 has 13, day 3 has 16...</summary>
+	/// <summary>From this day on, days stop getting more zombies.</summary>
+	public const int CampaignLastGrowingDay = 50;
+
+	/// <summary>Most zombies on the map at once during a campaign day.</summary>
+	public const int CampaignMaxZombiesOnMap = 25;
+
+	/// <summary>Seconds between two zombies of the same group appearing (campaign).</summary>
+	public const float CampaignSpawnInterval = 0.12f;
+
+	/// <summary>Waits between groups of zombies in a campaign day are multiplied by this.</summary>
+	public const float CampaignGroupDelayScale = 0.35f;
+
+	/// <summary>Day 1 has 10 zombies, day 2 has 13, day 3 has 16... up to day 50 (157), then stays there.</summary>
 	public static int CampaignZombieCount(int day)
 	{
-		return CampaignFirstDayZombies + CampaignExtraZombiesPerDay * Mathf.Max(0, day - 1);
+		int growingDays = Mathf.Clamp(day, 1, CampaignLastGrowingDay) - 1;
+		return CampaignFirstDayZombies + CampaignExtraZombiesPerDay * growingDays;
 	}
 
 	// ---- Survival pacing -------------------------------------------------
@@ -110,7 +141,28 @@ public static class ModTuning
 	public const float SurvivalMaxWaveStartDelay = 3f;
 
 	/// <summary>Waits between groups of zombies inside a wave are multiplied by this.</summary>
-	public const float SurvivalGroupDelayScale = 0.7f;
+	public const float SurvivalGroupDelayScale = 0.4f;
+
+	/// <summary>Seconds between two zombies of the same group appearing (survival).</summary>
+	public const float SurvivalSpawnInterval = 0.15f;
+
+	/// <summary>A survival wave never has more zombies than this (bosses come on top).</summary>
+	public const int SurvivalMaxZombiesPerWave = 40;
+
+	/// <summary>Most zombies on the map at once in survival (the original game allowed 8).</summary>
+	public static int SurvivalMaxZombiesOnMap(int wave)
+	{
+		float limit = 16f;
+		if (wave >= 15)
+		{
+			limit *= 1.5f;
+		}
+		if (wave >= 25)
+		{
+			limit *= 1.5f;
+		}
+		return Mathf.RoundToInt(limit);
+	}
 
 	public static float SurvivalSpawnDelay(float originalDelay, int wave, bool firstGroupOfWave)
 	{

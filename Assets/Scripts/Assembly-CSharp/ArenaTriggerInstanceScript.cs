@@ -96,7 +96,8 @@ public class ArenaTriggerInstanceScript : MonoBehaviour
 			Debug.Log("Wave num: " + waveNum + "  standard loot: " + gameScene.GetEnemyAttributesComputingFactor("loot"));
 			bool spawnedBoss = false;
 			bool firstRoundOfWave = true;
-			while (GotLoot < ExpectedMaxLoot)
+			int zombiesThisWave = 0;
+			while (GotLoot < ExpectedMaxLoot && zombiesThisWave < ModTuning.SurvivalMaxZombiesPerWave)
 			{
 				Debug.Log("spawned enemy total cash: " + GotLoot + "  expected enemy total cash: " + ExpectedMaxLoot);
 				int select_round2 = Random.Range(0, currentSpawnConfig.Rounds.Count);
@@ -122,8 +123,12 @@ public class ArenaTriggerInstanceScript : MonoBehaviour
 					}
 					for (int k = 0; k < enemyInfo.Count; k++)
 					{
+						if (zombiesThisWave >= ModTuning.SurvivalMaxZombiesPerWave)
+						{
+							break;
+						}
 						for (int m_enemyLeft = GameApp.GetInstance().GetGameScene().GetEnemies()
-							.Count; m_enemyLeft >= 8; m_enemyLeft = GameApp.GetInstance().GetGameScene().GetEnemies()
+							.Count; m_enemyLeft >= ModTuning.SurvivalMaxZombiesOnMap(waveNum); m_enemyLeft = GameApp.GetInstance().GetGameScene().GetEnemies()
 							.Count)
 						{
 							yield return 0;
@@ -144,7 +149,8 @@ public class ArenaTriggerInstanceScript : MonoBehaviour
 						bool bElite = false;
 						Enemy m_enemy = EnermyFactory.SpawnEnemy(isElite: ArenaTriggerFromConfigScript.EliteSpawn(enemyInfo.EType, enemyInfo.Count, k), id: gameScene.GetNextEnemyID(), isPrey: false, isBoss: false, enermyType: enemyInfo.EType, fromWhere: enemyInfo.From, position: spawnPosition);
 						GotLoot += m_enemy.Attributes.SpawnBudget;
-						yield return new WaitForSeconds(0.3f);
+						zombiesThisWave++;
+						yield return new WaitForSeconds(ModTuning.SurvivalSpawnInterval);
 					}
 				}
 			}
