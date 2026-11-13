@@ -9,7 +9,7 @@ using Zombie3D;
 public static class ModTuning
 {
 	/// <summary>Shown in the corner of the menus, to tell which build is installed.</summary>
-	public const string BuildLabel = "MOD BUILD 11";
+	public const string BuildLabel = "MOD BUILD 12";
 
 	// ---- Prices ----------------------------------------------------------
 
@@ -191,10 +191,109 @@ public static class ModTuning
 	public const float SurvivalWaveMultiplier = 1.25f;
 
 	/// <summary>Keeps one reward far away from the int limit at very high waves.</summary>
-	public const int MaxPointsPerReward = 20000000;
+	public const int MaxPointsPerReward = 500000000;
 
 	/// <summary>Cap on the points counted in one game (same cap the wallet already uses).</summary>
-	public const int MaxPointsPerGame = 99999999;
+	public const int MaxPointsPerGame = MaxMoney;
+
+	// ---- Long-term upgrades ----------------------------------------------
+
+	/// <summary>Most money a player can hold (the original cap was 99,999,999).</summary>
+	public const int MaxMoney = 2000000000;
+
+	/// <summary>Top weapon level (the original game stopped at 60).</summary>
+	public const int WeaponMaxLevel = 300;
+
+	/// <summary>Fastest fire delay in seconds, reached by every weapon at the top level.</summary>
+	public const float MinFireDelay = 0.01f;
+
+	/// <summary>Up to level 60 the original upgrade prices are kept; after that each level costs this much more.</summary>
+	public const int WeaponPriceCurveStart = 60;
+
+	public const double WeaponPriceGrowth = 1.047;
+
+	/// <summary>Top number of HP upgrades on a character (the original game stopped at 30).</summary>
+	public const int CharacterHpMaxLevel = 300;
+
+	/// <summary>Up to 30 HP upgrades the original gem prices are kept; after that each one costs this much more.</summary>
+	public const int CharacterHpPriceCurveStart = 30;
+
+	public const double CharacterHpPriceGrowth = 1.0259;
+
+	/// <summary>
+	/// Delay between shots at a weapon level.
+	/// Up to the middle level (30) it follows the original weapon, except that
+	/// weapons whose delay never improved now improve a little too. From there it
+	/// shrinks smoothly to MinFireDelay at the top level, for every weapon.
+	/// </summary>
+	public static float WeaponFireDelay(float initialDelay, float finalDelay, int level)
+	{
+		int mid = Mathf.Max(2, UpgradeParas.WeaponMidLevel);
+		float atMid = Mathf.Max(MinFireDelay, DelayBeforeMid(initialDelay, finalDelay, mid, mid));
+		if (level < mid)
+		{
+			return Mathf.Max(MinFireDelay, DelayBeforeMid(initialDelay, finalDelay, level, mid));
+		}
+		float t = Mathf.Clamp01((float)(level - mid) / (float)(WeaponMaxLevel - mid));
+		return Mathf.Max(MinFireDelay, atMid * Mathf.Pow(MinFireDelay / atMid, t));
+	}
+
+	private static float DelayBeforeMid(float initialDelay, float finalDelay, int level, int mid)
+	{
+		float original = initialDelay + (finalDelay - initialDelay) / (float)(mid - 1) * (float)(level - 1);
+		if (initialDelay <= MinFireDelay)
+		{
+			return original;
+		}
+		// The same curve stretched over the whole range: only matters for
+		// weapons that the original game never made faster.
+		float t = Mathf.Clamp01((float)(level - 1) / (float)(WeaponMaxLevel - 1));
+		float curve = initialDelay * Mathf.Pow(MinFireDelay / initialDelay, t);
+		return Mathf.Min(original, curve);
+	}
+
+	/// <summary>Cash price of the next upgrade for a weapon at this level.</summary>
+	public static int WeaponUpgradePrice(int level, float priceWeight)
+	{
+		int baseLevel = Mathf.Min(level, WeaponPriceCurveStart);
+		double l = baseLevel;
+		double price = UpgradeParas.WeaponParas["a"] * l * l + UpgradeParas.WeaponParas["b"] * l + UpgradeParas.WeaponParas["c"];
+		price *= priceWeight;
+		if (baseLevel >= UpgradeParas.WeaponMidLevel)
+		{
+			price *= UpgradeParas.WeaponParas["d"];
+		}
+		if (level > WeaponPriceCurveStart)
+		{
+			price *= Math.Pow(WeaponPriceGrowth, level - WeaponPriceCurveStart);
+		}
+		return ClampPrice(price / (double)UpgradePriceDivisor);
+	}
+
+	/// <summary>Gem price of the n-th HP upgrade of a character.</summary>
+	public static int CharacterHpPrice(int upgradeNumber, float priceWeight)
+	{
+		int baseNumber = Mathf.Min(upgradeNumber, CharacterHpPriceCurveStart);
+		double price = (UpgradeParas.AvatarHpPriceParas["a"] * Math.Pow(baseNumber, UpgradeParas.AvatarHpPriceParas["k"]) + UpgradeParas.AvatarHpPriceParas["b"]) * priceWeight;
+		if (upgradeNumber > CharacterHpPriceCurveStart)
+		{
+			price *= Math.Pow(CharacterHpPriceGrowth, upgradeNumber - CharacterHpPriceCurveStart);
+		}
+		return ClampPrice(price / (double)UpgradePriceDivisor);
+	}
+
+	private static int ClampPrice(double price)
+	{
+		if (double.IsNaN(price) || price < 1.0)
+		{
+			return 1;
+		}
+		if (price >= (double)MaxMoney)
+		{
+			return MaxMoney;
+		}
+		return (int)Math.Round(price);
+	}
 
 	public static int DiscountUpgradePrice(int price)
 	{

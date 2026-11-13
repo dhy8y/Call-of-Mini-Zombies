@@ -312,7 +312,8 @@ public class GameConfig
 			}
 			else if (reader.Name == "avatarHpBuyMaxLevel")
 			{
-				UpgradeParas.AvatarHpMaxLevel = int.Parse(reader.Value);
+				// Mod: HP upgrades go much further than the original 30.
+				UpgradeParas.AvatarHpMaxLevel = Mathf.Max(int.Parse(reader.Value), ModTuning.CharacterHpMaxLevel);
 			}
 			else if (reader.Name == "weaponUpgradeMidLevel")
 			{
@@ -320,7 +321,8 @@ public class GameConfig
 			}
 			else if (reader.Name == "weaponUpgradeMaxLevel")
 			{
-				UpgradeParas.WeaponMaxLevel = int.Parse(reader.Value);
+				// Mod: weapons go much further than the original 60.
+				UpgradeParas.WeaponMaxLevel = Mathf.Max(int.Parse(reader.Value), ModTuning.WeaponMaxLevel);
 			}
 			else if (reader.Name.StartsWith("player_upgradeExp"))
 			{

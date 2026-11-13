@@ -1105,13 +1105,14 @@ namespace Zombie3D
 
         public void AddCash(int cashGot)
         {
-            cash = new SafeInteger(Mathf.Clamp((int)cash + cashGot, 0, 99999999));
+            // Mod: much higher money cap, added without overflowing.
+            cash = new SafeInteger((int)System.Math.Max(0L, System.Math.Min((long)(int)cash + cashGot, (long)ModTuning.MaxMoney)));
             Achievement.CheckAchievemnet_RichMan(cash);
         }
 
         public void AddCashForRecord(int cashGot)
         {
-            loot_cash = new SafeInteger(Mathf.Clamp((int)loot_cash + cashGot, 0, ModTuning.MaxPointsPerGame));
+            loot_cash = new SafeInteger((int)System.Math.Max(0L, System.Math.Min((long)(int)loot_cash + cashGot, (long)ModTuning.MaxPointsPerGame)));
             AddCash(cashGot);
             GameApp.GetInstance().GetGameScene().UpdateGameStatistics();
             ModHooks.OnPointsEarned(cashGot);

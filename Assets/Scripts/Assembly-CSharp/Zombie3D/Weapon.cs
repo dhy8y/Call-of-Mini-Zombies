@@ -215,7 +215,10 @@ namespace Zombie3D
 				mAttributes.accuracy = WConf.accuracyFinal;
 				mAttributes.upgradePrice = (int)((UpgradeParas.WeaponParas["a"] * (float)Level * (float)Level + UpgradeParas.WeaponParas["b"] * (float)Level + UpgradeParas.WeaponParas["c"]) * WConf.upgradePriceWeight * UpgradeParas.WeaponParas["d"]);
 			}
-			mAttributes.upgradePrice = ModTuning.DiscountUpgradePrice(mAttributes.upgradePrice);
+			// Mod: every weapon keeps getting faster up to the top level, and the
+			// upgrade price keeps climbing (see ModTuning).
+			mAttributes.attackFrenquency = ModTuning.WeaponFireDelay(WConf.frequencyInitial, WConf.frequencyFinal, Level);
+			mAttributes.upgradePrice = ModTuning.WeaponUpgradePrice(Level, WConf.upgradePriceWeight);
 			mAttributes.damage = (float)Math.Round(mAttributes.damage, 1);
 			mAttributes.attackFrenquency = (float)Math.Round(mAttributes.attackFrenquency, 2);
 			mAttributes.accuracy = (float)Math.Round(mAttributes.accuracy, 1);

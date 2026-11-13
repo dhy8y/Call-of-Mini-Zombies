@@ -531,7 +531,7 @@ public class WeaponShopMenuTUI : MonoBehaviour, TUIHandler
 				return;
 			}
 			upgrade_price.gameObject.SetActive(true);
-			upgrade_price.text_Accessor = "$" + w.UpgradePrice.ToString("N0");
+			upgrade_price.text_Accessor = "$" + ModFormat.Short(w.UpgradePrice);
 		}
 		else if (w.Exist == WeaponExistState.Unlocked)
 		{
